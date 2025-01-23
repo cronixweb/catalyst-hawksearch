@@ -8,6 +8,7 @@ import { client } from '~/client';
 import { graphql } from '~/client/graphql';
 import { revalidate } from '~/client/revalidate-target';
 import { ProductCardFragment } from '~/components/product-card/fragment';
+import {hawkSearch} from "~/client/hawksearch";
 
 const GetQuickSearchResultsQuery = graphql(
   `
@@ -40,6 +41,8 @@ const GetQuickSearchResultsQuery = graphql(
 
 export const getSearchResults = cache(async (searchTerm: string) => {
   const customerAccessToken = await getSessionCustomerAccessToken();
+
+  await hawkSearch(searchTerm);
 
   try {
     const response = await client.fetch({

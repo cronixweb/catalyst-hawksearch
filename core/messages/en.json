@@ -455,6 +455,8 @@
   },
   "Components": {
     "Header": {
+      "clearSearch": "Clear search",
+      "processing": "Processing...",
       "Account": {
         "account": "Account",
         "orders": "Orders",
