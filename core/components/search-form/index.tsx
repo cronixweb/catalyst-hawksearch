@@ -22,7 +22,7 @@ export const SearchForm = ({ initialTerm = '' }: Props) => {
         <h3 className="text-3xl font-black lg:text-4xl">{t('searchProducts')}</h3>
       )}
       <p>{t('checkSpelling')}</p>
-      <Form action="/search" className="flex" method="get">
+      <Form action="/hawksearch" className="flex" method="get">
         <Field className="me-4 w-full" name="search">
           <FieldControl asChild>
             <Input defaultValue={initialTerm} name="term" placeholder={t('searchPlaceholder')} />
