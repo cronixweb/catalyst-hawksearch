@@ -1,6 +1,6 @@
 import { Slideshow as ComponentsSlideshow } from '~/components/ui/slideshow';
 
-import SlideshowBG from './slideshow-bg-01.jpg';
+import SlideshowBG from './bsdslider1.png';
 
 const slides = [
   {
