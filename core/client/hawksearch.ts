@@ -1,3 +1,5 @@
+import { SearchResult } from "@/vibes/soul/primitives/navigation";
+
 interface Pagination{
   NofResults: number;
   CurrentPage: number;
@@ -23,7 +25,7 @@ interface HawksearchSearchResponse{
   Results: Result[];
 }
 
-export async function hawkSearch(query: string) {
+export async function hawkSearch(query: string) : Promise<SearchResult[] | null> {
 
   console.log(process.env.HAWKSEARCH_SERVER)
   console.log(query);
@@ -59,58 +61,50 @@ export async function hawkSearch(query: string) {
     if (response.status === 200) {
        const json = await response.json();
        const products = json.Results;
-
+       const categoryFacet = json.Facets.find((facet: any) => facet.Name == 'Category');
        console.log(products);
 
-       const preparedResponse = products.map((product:any, index:any) => {
-          return {
-              categories: {
-                  edges: product.Document.category && product.Document.category.map((val:string, index:any) => {
-                    val = val.split('|', 2)[1] as string;
-                    return { node: { name: val, /** path: 'slug-not-found'*/ } }
-                  })
-              },
-              entityId: product.DocId,
-              name: product.Document.name.length >=1 ? product.Document.name[0] : '',
-              defaultImage: {
-                  altText: '',
-                  url: product.Document.image.length >=1 ? product.Document.image[0] : '',
-              },
-              path: product.Document.url_detail.length >=1 ? product.Document.url_detail[0] : '',
-              brand: null,
-              reviewSummary: { numberOfReviews: 0, averageRating: 0 },
-              productOptions: { edges: [ { node: { entityId: product.DocId } } ] },
-              inventory: { isInStock: product.Document.metric_inventory.length >=1 && product.Document.metric_inventory[0] > 0 },
-              availabilityV2: { status: product.IsVisible ? 'Available' : 'Unavailable'},
-              prices: {
-                  price: { value: product.Document.price_retail.length >=1 ? product.Document.price_retail[0] : '', currencyCode: 'USD' },
-                  basePrice: { value: product.Document.price_retail.length >=1 ? product.Document.price_retail[0] : '', currencyCode: 'USD' },
-                  retailPrice: null,
-                  salePrice: null,
-                  priceRange: {
-                      min: { value: product.Document.price_retail.length >=1 ? product.Document.price_retail[0] : '', currencyCode: 'USD' },
-                      max: { value: product.Document.price_retail.length >=1 ? product.Document.price_retail[0] : '', currencyCode: 'USD' }
-                  }
+       const categoryResponse = {
+          type: 'links' as 'links',
+          title: "Categories",
+          links: categoryFacet.Values.map((category: any) => {
+              return {
+                  "label": category.Label,
+                  "href": category.Value
               }
+          }) as Array<{ label: string; href: string }>
+        }
+
+       const productResponse = {
+        type: 'products' as 'products',
+        title: "Products",
+        products: products.map((product: any) => {
+          return {
+            id: product.DocId,
+            title: product.Document.name.length >=1 ? product.Document.name[0] : '',
+            href: product.Document.url_detail.length >=1 ? product.Document.url_detail[0] : '',
+            image: {
+                src: product.Document.image.length >=1 ? product.Document.image[0] : '',
+                alt: ""
+            },
+            price: '$' + parseFloat((product.Document.price_retail.length >=1 ? product.Document.price_retail[0] : '')).toFixed(2)
           }
-       });
+        }) as Array<{
+                id: string;
+                title: string;
+                href: string;
+                price?: string;
+                image?: { src: string; alt: string };
+              }>
+      }
+       ;
 
-    
-       console.log('*******************Hawsearch Products*******************');
-       console.log(preparedResponse);
-       console.log('*******************Hawsearch Products End*******************');
-
-       return {
-          status: 'success',
-          data: {
-            products: preparedResponse
-          },
-        };
-      //  console.log('*******************Hawsearch Products*******************')
-      //  console.log(products)
-      //  console.log('*******************Hawsearch Products End*******************')
+      return [categoryResponse, productResponse];
     }
   } catch (error) {
     console.error(error);
+    return null;
   }
+
+  return null;
 }

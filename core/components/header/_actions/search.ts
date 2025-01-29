@@ -15,6 +15,7 @@ import { searchResultsTransformer } from '~/data-transformers/search-results-tra
 import { getPreferredCurrencyCode } from '~/lib/currency';
 
 import { SearchProductFragment } from './fragment';
+import { hawkSearch } from '~/client/hawksearch';
 
 const GetQuickSearchResultsQuery = graphql(
   `
@@ -77,6 +78,13 @@ export async function search(
       emptyStateTitle,
       emptyStateSubtitle,
     };
+  }
+
+  return {
+    lastResult: submission.reply(),
+    searchResults: await hawkSearch(submission.value.term),
+    emptyStateTitle,
+    emptyStateSubtitle,
   }
 
   const customerAccessToken = await getSessionCustomerAccessToken();
