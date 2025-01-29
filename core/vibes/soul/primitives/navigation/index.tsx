@@ -596,7 +596,7 @@ Navigation.displayName = 'Navigation';
 function SearchForm<S extends SearchResult>({
   searchAction,
   searchParamName = 'query',
-  searchHref = '/search',
+  searchHref = '/hawksearch',
   searchInputPlaceholder = 'Search Products',
   searchCtaLabel = 'View more',
   submitLabel = 'Submit',

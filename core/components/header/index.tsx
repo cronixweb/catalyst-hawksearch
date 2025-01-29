@@ -141,7 +141,7 @@ export const Header = async () => {
         accountLabel: t('Icons.account'),
         cartHref: '/cart',
         cartLabel: t('Icons.cart'),
-        searchHref: '/search',
+        searchHref: '/hawksearch',
         searchLabel: t('Icons.search'),
         searchParamName: 'term',
         searchAction: search,
