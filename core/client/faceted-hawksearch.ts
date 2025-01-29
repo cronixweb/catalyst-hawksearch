@@ -191,8 +191,8 @@ interface Pagination{
                         "name": "Price",
                         "isCollapsedByDefault": false,
                         "selected":{ 
-                          "minPrice": facet.Values[0].RangeStart ? facet.Values[0].RangeStart : null,
-                          "maxPrice": facet.Values[0].RangeEnd ? facet.Values[0].RangeEnd: null
+                          "minPrice": facet.Values[0].RangeStart ? parseFloat(facet.Values[0].RangeStart).toFixed(2) : null,
+                          "maxPrice": facet.Values[0].RangeEnd ? parseFloat(facet.Values[0].RangeEnd).toFixed(2): null
                         }
                       }
 
