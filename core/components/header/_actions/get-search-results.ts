@@ -40,31 +40,36 @@ const GetQuickSearchResultsQuery = graphql(
 );
 
 export const getSearchResults = cache(async (searchTerm: string) => {
-  const customerAccessToken = await getSessionCustomerAccessToken();
+  console.log('***************Searching*************');
+  return await hawkSearch(searchTerm);
 
-  await hawkSearch(searchTerm);
+  // const customerAccessToken = await getSessionCustomerAccessToken();
 
-  try {
-    const response = await client.fetch({
-      document: GetQuickSearchResultsQuery,
-      variables: { filters: { searchTerm } },
-      customerAccessToken,
-      fetchOptions: customerAccessToken ? { cache: 'no-store' } : { next: { revalidate } },
-    });
+  // try {
+  //   const response = await client.fetch({
+  //     document: GetQuickSearchResultsQuery,
+  //     variables: { filters: { searchTerm } },
+  //     customerAccessToken,
+  //     fetchOptions: customerAccessToken ? { cache: 'no-store' } : { next: { revalidate } },
+  //   });
 
-    const { products } = response.data.site.search.searchProducts;
+  //   const { products } = response.data.site.search.searchProducts;
 
-    return {
-      status: 'success',
-      data: {
-        products: removeEdgesAndNodes(products),
-      },
-    };
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return { status: 'error', error: error.message };
-    }
+  //   // console.log('Search result------------------------------');
+  //   // console.log(removeEdgesAndNodes(products));
+  //   // console.log('Rsult ENDS------------------------------');
 
-    return { status: 'error', error: 'Something went wrong. Please try again.' };
-  }
+  //   return {
+  //     status: 'success',
+  //     data: {
+  //       products: removeEdgesAndNodes(products),
+  //     },
+  //   };
+  // } catch (error: unknown) {
+  //   if (error instanceof Error) {
+  //     return { status: 'error', error: error.message };
+  //   }
+
+  //   return { status: 'error', error: 'Something went wrong. Please try again.' };
+  // }
 });

@@ -4,8 +4,10 @@ import { z } from 'zod';
 
 import { getSessionCustomerAccessToken } from '~/auth';
 import { client } from '~/client';
+import { facetedHawkSearch } from '~/client/faceted-hawksearch';
 import { PaginationFragment } from '~/client/fragments/pagination';
 import { graphql, VariablesOf } from '~/client/graphql';
+import { hawkSearch } from '~/client/hawksearch';
 import { revalidate } from '~/client/revalidate-target';
 import { ProductCardFragment } from '~/components/product-card/fragment';
 
@@ -166,7 +168,13 @@ interface ProductSearch {
 }
 
 const getProductSearchResults = cache(
-  async ({ limit = 9, after, before, sort, filters }: ProductSearch) => {
+  async ({ limit = 9, after, before, sort, filters }: any) => {
+
+    console.log('faceted');
+    console.log(filters);
+
+    return await facetedHawkSearch(limit = 9, after, before, sort, filters);
+
     const customerAccessToken = await getSessionCustomerAccessToken();
     const filterArgs = { filters, sort };
     const paginationArgs = before ? { last: limit, before } : { first: limit, after };
@@ -181,6 +189,12 @@ const getProductSearchResults = cache(
     const { site } = response.data;
 
     const searchResults = site.search.searchProducts;
+
+   // const searchResults = { products: await hawkSearch(filters.searchTerm as string) };
+
+    console.log('Faceted Search Result-------------------------------');
+    console.log(removeEdgesAndNodes(searchResults.filters));
+    console.log('Faceted Search Result END-------------------------------');
 
     const items = removeEdgesAndNodes(searchResults.products).map((product) => ({
       ...product,
@@ -259,8 +273,8 @@ const PublicSortParam = z.string().toUpperCase().pipe(PrivateSortParam);
 
 const SearchProductsFiltersInputSchema = z.object({
   brandEntityIds: z.array(z.number()).optional(),
-  categoryEntityId: z.number().optional(),
-  categoryEntityIds: z.array(z.number()).optional(),
+  categoryEntityId: z.string().optional(),
+  categoryEntityIds: z.array(z.string()).optional(),
   hideOutOfStock: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
   isFreeShipping: z.boolean().optional(),
@@ -300,8 +314,8 @@ export const PublicSearchParamsSchema = z.object({
   after: z.string().optional(),
   before: z.string().optional(),
   brand: SearchParamToArray.transform((value) => value?.map(Number)),
-  category: z.coerce.number().optional(),
-  categoryIn: SearchParamToArray.transform((value) => value?.map(Number)),
+  category: z.coerce.string().optional(),
+  categoryIn: SearchParamToArray.transform((value) => value?.map(String)),
   isFeatured: z.coerce.boolean().optional(),
   limit: z.coerce.number().optional(),
   minPrice: z.coerce.number().optional(),
