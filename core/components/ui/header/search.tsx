@@ -138,7 +138,7 @@ const Search = ({ initialTerm = '', logo, onSearch }: Props) => {
                 </CustomLink>
               </div>
               <Form.Root
-                action="/search"
+                action="/hawksearch"
                 className="col-span-4 flex lg:col-span-3"
                 method="get"
                 role="search"
@@ -210,6 +210,7 @@ const Search = ({ initialTerm = '', logo, onSearch }: Props) => {
                                 height={80}
                                 src={image.src}
                                 width={80}
+                                unoptimized
                               />
                             ) : (
                               <span className="flex h-20 w-20 flex-shrink-0 items-center justify-center bg-gray-200 text-lg font-bold text-gray-500">

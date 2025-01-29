@@ -41,6 +41,7 @@ export default async function WebPage({ params }: Props) {
   return (
     <div className="mx-auto mb-10 flex flex-col justify-center gap-8 lg:w-2/3">
       <h1 className="text-4xl font-black lg:text-5xl">{name}</h1>
+      <h1>We are here</h1>
       <div dangerouslySetInnerHTML={{ __html: htmlBody }} />
     </div>
   );
