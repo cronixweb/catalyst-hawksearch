@@ -36,14 +36,14 @@ export function SortBy() {
         onValueChange={onSort}
         options={[
           { value: 'featured', label: t('featuredItems') },
-          { value: 'newest', label: t('newestItems') },
-          { value: 'best_selling', label: t('bestSellingItems') },
-          { value: 'a_to_z', label: t('aToZ') },
-          { value: 'z_to_a', label: t('zToA') },
-          { value: 'best_reviewed', label: t('byReview') },
-          { value: 'lowest_price', label: t('priceAscending') },
-          { value: 'highest_price', label: t('priceDescending') },
-          { value: 'relevance', label: t('relevance') },
+          // { value: 'newest', label: t('newestItems') },
+          // { value: 'best_selling', label: t('bestSellingItems') },
+          // { value: 'a_to_z', label: t('aToZ') },
+          // { value: 'z_to_a', label: t('zToA') },
+          // { value: 'best_reviewed', label: t('byReview') },
+          // { value: 'lowest_price', label: t('priceAscending') },
+          // { value: 'highest_price', label: t('priceDescending') },
+          // { value: 'relevance', label: t('relevance') },
         ]}
         value={value}
       />
