@@ -171,72 +171,11 @@ interface ProductSearch {
 
 const getProductSearchResults = cache(
   async ({ limit = 9, after, before, sort, filters }: any) => {
-
-    const customerAccessToken = await getSessionCustomerAccessToken();
-    const currencyCode = await getPreferredCurrencyCode();
-    const filterArgs = { filters, sort };
-    const paginationArgs = before ? { last: limit, before } : { first: limit, after };
-
-    const response = await client.fetch({
-      document: GetProductSearchResultsQuery,
-      variables: { ...filterArgs, ...paginationArgs, currencyCode },
-      customerAccessToken,
-      fetchOptions: customerAccessToken ? { cache: 'no-store' } : { next: { revalidate: 300 } },
-    });
-
-    const { site } = response.data;
-
-    const searchResults = site.search.searchProducts;
-
-   // const searchResults = { products: await hawkSearch(filters.searchTerm as string) };
-
-    // console.log('Faceted Search Result-------------------------------');
-    // console.log(removeEdgesAndNodes(searchResults.filters));
-    // console.log('Faceted Search Result END-------------------------------');
-
-    const items = removeEdgesAndNodes(searchResults.products).map((product) => ({
-      ...product,
-    }));
-
-    return {
-      facets: {
-        items: removeEdgesAndNodes(searchResults.filters).map((node) => {
-          switch (node.__typename) {
-            case 'BrandSearchFilter':
-              return {
-                ...node,
-                brands: removeEdgesAndNodes(node.brands),
-              };
-
-            case 'CategorySearchFilter':
-              return {
-                ...node,
-                categories: removeEdgesAndNodes(node.categories),
-              };
-
-            case 'ProductAttributeSearchFilter':
-              return {
-                ...node,
-                attributes: removeEdgesAndNodes(node.attributes),
-              };
-
-            case 'RatingSearchFilter':
-              return {
-                ...node,
-                ratings: removeEdgesAndNodes(node.ratings),
-              };
-
-            default:
-              return node;
-          }
-        }),
-      },
-      products: {
-        collectionInfo: searchResults.products.collectionInfo,
-        pageInfo: searchResults.products.pageInfo,
-        items,
-      },
-    };
+    console.log('faceted');
+    // console.log(filters);
+    
+    // filters.categoryEntityId = Number(filters.categoryEntityId);
+    return await facetedHawkSearch(limit = 9, after, before, sort, filters);
   },
 );
 
@@ -270,8 +209,8 @@ const PublicSortParam = z.string().toUpperCase().pipe(PrivateSortParam);
 
 const SearchProductsFiltersInputSchema = z.object({
   brandEntityIds: z.array(z.number()).nullish(),
-  categoryEntityId: z.number().nullish(),
-  categoryEntityIds: z.array(z.number()).nullish(),
+  categoryEntityId: z.string().nullish(),
+  categoryEntityIds: z.array(z.string()).nullish(),
   hideOutOfStock: z.boolean().nullish(),
   isFeatured: z.boolean().nullish(),
   isFreeShipping: z.boolean().nullish(),
@@ -311,8 +250,8 @@ export const PublicSearchParamsSchema = z.object({
   after: z.string().nullish(),
   before: z.string().nullish(),
   brand: SearchParamToArray.nullish().transform((value) => value?.map(Number)),
-  category: z.coerce.number().optional(),
-  categoryIn: SearchParamToArray.nullish().transform((value) => value?.map(Number)),
+  category: z.coerce.string().optional(),
+  categoryIn: SearchParamToArray.nullish().transform((value) => value?.map(String)),
   isFeatured: z.coerce.boolean().nullish(),
   limit: z.coerce.number().nullish(),
   minPrice: z.coerce.number().nullish(),
@@ -399,7 +338,7 @@ export const PublicToPrivateParams = PublicSearchParamsSchema.catchall(SearchPar
   })
   .pipe(PrivateSearchParamsSchema);
 
-export const fetchFacetedSearch = cache(
+export const fetchFacetedHawksearch = cache(
   // We need to make sure the reference passed into this function is the same if we want it to be memoized.
   async (params: z.input<typeof PublicSearchParamsSchema>) => {
     const { after, before, limit = 9, sort, filters } = PublicToPrivateParams.parse(params);
