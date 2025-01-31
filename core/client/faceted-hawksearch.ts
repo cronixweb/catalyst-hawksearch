@@ -35,7 +35,7 @@ interface Pagination{
     }
   }
 
-  export async function facetedHawkSearch(limit = 9, after, before, sort, filters: Filters) {
+  export async function facetedHawkSearch(limit = 9, after:any, before:any, sort:any, filters: Filters) {
   
     console.log('Hawksearch Filters ', filters);
 

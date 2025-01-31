@@ -4,11 +4,8 @@ import { z } from 'zod';
 
 import { getSessionCustomerAccessToken } from '~/auth';
 import { client } from '~/client';
-import { facetedHawkSearch } from '~/client/faceted-hawksearch';
 import { PaginationFragment } from '~/client/fragments/pagination';
 import { graphql, VariablesOf } from '~/client/graphql';
-import { hawkSearch } from '~/client/hawksearch';
-import { revalidate } from '~/client/revalidate-target';
 import { ProductCardFragment } from '~/components/product-card/fragment';
 import { getPreferredCurrencyCode } from '~/lib/currency';
 
@@ -160,14 +157,6 @@ const GetProductSearchResultsQuery = graphql(
 type Variables = VariablesOf<typeof GetProductSearchResultsQuery>;
 type SearchProductsSortInput = Variables['sort'];
 type SearchProductsFiltersInput = Variables['filters'];
-
-interface ProductSearch {
-  limit?: number | null;
-  before?: string | null;
-  after?: string | null;
-  sort?: SearchProductsSortInput | null;
-  filters: SearchProductsFiltersInput;
-}
 
 const getProductSearchResults = cache(
   async ({ limit = 9, after, before, sort, filters }: any) => {

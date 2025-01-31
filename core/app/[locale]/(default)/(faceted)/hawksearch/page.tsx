@@ -19,7 +19,7 @@ import { fetchFacetedHawksearch } from '~/client/fetch-faceted-hawksearch';
 const createSearchSearchParamsCache = cache(async (props: Props) => {
   const searchParams = await props.searchParams;
   const search = await fetchFacetedHawksearch(searchParams);
-  const searchFacets = search.facets.items;
+  const searchFacets = search?.facets.items;
   const transformedSearchFacets = await facetsTransformer({
     refinedFacets: searchFacets,
     allFacets: searchFacets,
@@ -72,7 +72,7 @@ async function getProducts(props: Props) {
   //Get for all products when no search term is passed
   const search = await getSearch(props);
 
-  return search.products.items;
+  return search?.products.items;
 }
 
 async function getTitle(props: Props): Promise<string> {
@@ -93,7 +93,7 @@ async function getFilters(props: Props): Promise<Filter[]> {
     refinedSearch = await getRefinedSearch(props);
 
   const categorySearch = await fetchFacetedHawksearch({});
-  const allFacets = categorySearch.facets.items;
+  const allFacets = categorySearch?.facets.items;
 
   const refinedFacets =
     refinedSearch?.facets.items ??
@@ -111,7 +111,7 @@ async function getListProducts(props: Props): Promise<ListProduct[]> {
   const products = await getProducts(props);
   const format = await getFormatter();
 
-  return products.map((product) => ({
+  return products.map((product: any) => ({
     id: product.entityId.toString(),
     title: product.name,
     href: product.path,
@@ -132,7 +132,7 @@ async function getTotalCount(props: Props): Promise<number> {
 
   const search = await getSearch(props);
 
-  return search.products.collectionInfo?.totalItems ?? 0;
+  return search?.products.collectionInfo?.totalItems ?? 0;
 }
 
 async function getSortLabel(): Promise<string> {
@@ -170,13 +170,13 @@ async function getPaginationInfo(props: Props): Promise<CursorPaginationInfo> {
   }
 
   const search = await getSearch(props);
-  const { hasNextPage, hasPreviousPage, endCursor, startCursor } = search.products.pageInfo;
+  const { hasNextPage, hasPreviousPage, endCursor, startCursor } = search?.products.pageInfo ?? {};
 
   return {
     startCursorParamName: 'before',
     endCursorParamName: 'after',
     endCursor: hasNextPage ? endCursor : null,
-    startCursor: hasPreviousPage ? startCursor : null,
+    startCursor: hasPreviousPage ? String(startCursor) : '',
   };
 }
 
