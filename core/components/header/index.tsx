@@ -18,6 +18,7 @@ import { search } from './_actions/search';
 import { switchCurrency } from './_actions/switch-currency';
 import { switchLocale } from './_actions/switch-locale';
 import { HeaderFragment } from './fragment';
+import { LogHelper } from '../log-helper';
 
 const GetCartCountQuery = graphql(`
   query GetCartCountQuery($cartId: String) {
@@ -53,6 +54,11 @@ const getLinks = async () => {
    */
   const categoryTree = data.categoryTree.slice(0, 6);
 
+  categoryTree.push({
+    name: 'Search', path: 'hawksearch',
+    children: []
+  });
+  
   return categoryTree.map(({ name, path, children }) => ({
     label: name,
     href: path,
@@ -135,6 +141,8 @@ export const Header = async () => {
   const activeCurrencyId = currencyCode ?? defaultCurrency?.id;
 
   return (
+    <>
+    <LogHelper products={'Hello'} />
     <HeaderSection
       navigation={{
         accountHref: '/login',
@@ -159,5 +167,6 @@ export const Header = async () => {
         currencyAction: switchCurrency,
       }}
     />
+    </>
   );
 };
