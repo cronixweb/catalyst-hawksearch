@@ -68,10 +68,7 @@ const getSearch = cache(async (props: Props) => {
 async function getProducts(props: Props) {
   const searchTerm = await getSearchTerm(props);
 
-  if (searchTerm === '') {
-    return [];
-  }
-
+  //Get for all products when no search term is passed
   const search = await getSearch(props);
 
   return search.products.items;
@@ -92,17 +89,13 @@ async function getFilters(props: Props): Promise<Filter[]> {
 
   let refinedSearch: Awaited<ReturnType<typeof fetchFacetedSearch>> | null = null;
 
-  if (searchTerm !== '') {
     refinedSearch = await getRefinedSearch(props);
-  }
 
   const categorySearch = await fetchFacetedSearch({});
-  const allFacets = categorySearch.facets.items.filter(
-    (facet) => facet.__typename !== 'CategorySearchFilter',
-  );
+  const allFacets = categorySearch.facets.items;
 
   const refinedFacets =
-    refinedSearch?.facets.items.filter((facet) => facet.__typename !== 'CategorySearchFilter') ??
+    refinedSearch?.facets.items ??
     [];
   const transformedFacets = await facetsTransformer({
     refinedFacets,
