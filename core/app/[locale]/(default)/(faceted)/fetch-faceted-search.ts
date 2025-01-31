@@ -173,8 +173,9 @@ const getProductSearchResults = cache(
   async ({ limit = 9, after, before, sort, filters }: any) => {
 
     console.log('faceted');
-    console.log(filters);
-
+    // console.log(filters);
+    
+    // filters.categoryEntityId = Number(filters.categoryEntityId);
     return await facetedHawkSearch(limit = 9, after, before, sort, filters);
 
     const customerAccessToken = await getSessionCustomerAccessToken();
@@ -195,9 +196,9 @@ const getProductSearchResults = cache(
 
    // const searchResults = { products: await hawkSearch(filters.searchTerm as string) };
 
-    console.log('Faceted Search Result-------------------------------');
-    console.log(removeEdgesAndNodes(searchResults.filters));
-    console.log('Faceted Search Result END-------------------------------');
+    // console.log('Faceted Search Result-------------------------------');
+    // console.log(removeEdgesAndNodes(searchResults.filters));
+    // console.log('Faceted Search Result END-------------------------------');
 
     const items = removeEdgesAndNodes(searchResults.products).map((product) => ({
       ...product,
@@ -408,6 +409,8 @@ export const fetchFacetedSearch = cache(
   // We need to make sure the reference passed into this function is the same if we want it to be memoized.
   async (params: z.input<typeof PublicSearchParamsSchema>) => {
     const { after, before, limit = 9, sort, filters } = PublicToPrivateParams.parse(params);
+
+    console.log('MY FILTERS', filters);
 
     return getProductSearchResults({
       after,

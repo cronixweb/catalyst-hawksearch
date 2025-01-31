@@ -1,3 +1,5 @@
+import Category from "~/app/[locale]/(default)/(faceted)/category/[slug]/page";
+
 interface Pagination{
     NofResults: number;
     CurrentPage: number;
@@ -35,9 +37,7 @@ interface Pagination{
 
   export async function facetedHawkSearch(limit = 9, after, before, sort, filters: Filters) {
   
-    console.log(process.env.HAWKSEARCH_SERVER)
-    console.log({limit, after, before, sort, filters});
-    console.log(filters.categoryEntityIds);
+    console.log('Hawksearch Filters ', filters);
 
     if (!process.env.HAWKSEARCH_SERVER?.includes('hawksearch')) {
       throw new Error('Invalid Hawksearch Server');
@@ -50,17 +50,7 @@ interface Pagination{
     if (process.env.HAWKSEARCH_INDEX === '') {
       throw new Error('HAWKSEARCH_INDEX is empty');
     }
-  
-    console.log(process.env.HAWKSEARCH_CLIENT_GUID, ' ' ,process.env.HAWKSEARCH_INDEX);
-  
-    const price_retail = filters.price ? 
-    [
-      (filters.price.minPrice ? filters.price.minPrice : 0 )
-      + ',' 
-      + (filters.price.maxPrice ? filters.price.maxPrice : '')
-    ] : [];
 
-    console.log(price_retail);
 
     try {
       const response = await fetch(`${process.env.HAWKSEARCH_SERVER}/api/v2/search`, {
@@ -92,7 +82,7 @@ interface Pagination{
       
       if (response.status === 200) {
          const hawkSearchResponse = await response.json();
-         console.log(hawkSearchResponse);
+         //console.log(hawkSearchResponse);
 
          const products = hawkSearchResponse.Results;
   
