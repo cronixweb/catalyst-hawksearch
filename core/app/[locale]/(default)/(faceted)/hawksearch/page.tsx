@@ -13,12 +13,13 @@ import { Option as SortOption } from '@/vibes/soul/sections/products-list-sectio
 import { facetsTransformer } from '~/data-transformers/facets-transformer';
 import { pricesTransformer } from '~/data-transformers/prices-transformer';
 
-import { fetchFacetedSearch } from '../fetch-faceted-search';
+import { fetchFacetedHawksearch } from '~/client/fetch-faceted-hawksearch';
+
 
 const createSearchSearchParamsCache = cache(async (props: Props) => {
   const searchParams = await props.searchParams;
-  const search = await fetchFacetedSearch(searchParams);
-  const searchFacets = search.facets.items;
+  const search = await fetchFacetedHawksearch(searchParams);
+  const searchFacets = search?.facets.items;
   const transformedSearchFacets = await facetsTransformer({
     refinedFacets: searchFacets,
     allFacets: searchFacets,
@@ -46,7 +47,7 @@ const getRefinedSearch = cache(async (props: Props) => {
   const searchParamsCache = await createSearchSearchParamsCache(props);
   const parsedSearchParams = searchParamsCache?.parse(searchParams) ?? {};
 
-  return await fetchFacetedSearch({
+  return await fetchFacetedHawksearch({
     ...searchParams,
     ...parsedSearchParams,
   });
@@ -68,13 +69,10 @@ const getSearch = cache(async (props: Props) => {
 async function getProducts(props: Props) {
   const searchTerm = await getSearchTerm(props);
 
-  if (searchTerm === '') {
-    return [];
-  }
-
+  //Get for all products when no search term is passed
   const search = await getSearch(props);
 
-  return search.products.items;
+  return search?.products.items;
 }
 
 async function getTitle(props: Props): Promise<string> {
@@ -90,19 +88,15 @@ async function getFilters(props: Props): Promise<Filter[]> {
   const searchParamsCache = await createSearchSearchParamsCache(props);
   const parsedSearchParams = searchParamsCache?.parse(searchParams) ?? {};
 
-  let refinedSearch: Awaited<ReturnType<typeof fetchFacetedSearch>> | null = null;
+  let refinedSearch: Awaited<ReturnType<typeof fetchFacetedHawksearch>> | null = null;
 
-  if (searchTerm !== '') {
     refinedSearch = await getRefinedSearch(props);
-  }
 
-  const categorySearch = await fetchFacetedSearch({});
-  const allFacets = categorySearch.facets.items.filter(
-    (facet) => facet.__typename !== 'CategorySearchFilter',
-  );
+  const categorySearch = await fetchFacetedHawksearch({});
+  const allFacets = categorySearch?.facets.items;
 
   const refinedFacets =
-    refinedSearch?.facets.items.filter((facet) => facet.__typename !== 'CategorySearchFilter') ??
+    refinedSearch?.facets.items ??
     [];
   const transformedFacets = await facetsTransformer({
     refinedFacets,
@@ -117,7 +111,7 @@ async function getListProducts(props: Props): Promise<ListProduct[]> {
   const products = await getProducts(props);
   const format = await getFormatter();
 
-  return products.map((product) => ({
+  return products.map((product: any) => ({
     id: product.entityId.toString(),
     title: product.name,
     href: product.path,
@@ -138,7 +132,7 @@ async function getTotalCount(props: Props): Promise<number> {
 
   const search = await getSearch(props);
 
-  return search.products.collectionInfo?.totalItems ?? 0;
+  return search?.products.collectionInfo.totalItems ?? 0;
 }
 
 async function getSortLabel(): Promise<string> {
@@ -176,13 +170,13 @@ async function getPaginationInfo(props: Props): Promise<CursorPaginationInfo> {
   }
 
   const search = await getSearch(props);
-  const { hasNextPage, hasPreviousPage, endCursor, startCursor } = search.products.pageInfo;
+  const { hasNextPage, hasPreviousPage, endCursor, startCursor } = search?.products.pageInfo ?? {};
 
   return {
     startCursorParamName: 'before',
     endCursorParamName: 'after',
     endCursor: hasNextPage ? endCursor : null,
-    startCursor: hasPreviousPage ? startCursor : null,
+    startCursor: hasPreviousPage ? String(startCursor) : '',
   };
 }
 

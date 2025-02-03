@@ -53,6 +53,11 @@ const getLinks = async () => {
    */
   const categoryTree = data.categoryTree.slice(0, 6);
 
+  categoryTree.push({
+    name: 'Search', path: 'hawksearch',
+    children: []
+  });
+  
   return categoryTree.map(({ name, path, children }) => ({
     label: name,
     href: path,

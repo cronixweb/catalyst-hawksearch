@@ -4,11 +4,8 @@ import { z } from 'zod';
 
 import { getSessionCustomerAccessToken } from '~/auth';
 import { client } from '~/client';
-import { facetedHawkSearch } from '~/client/faceted-hawksearch';
 import { PaginationFragment } from '~/client/fragments/pagination';
 import { graphql, VariablesOf } from '~/client/graphql';
-import { hawkSearch } from '~/client/hawksearch';
-import { revalidate } from '~/client/revalidate-target';
 import { ProductCardFragment } from '~/components/product-card/fragment';
 import { getPreferredCurrencyCode } from '~/lib/currency';
 
@@ -161,21 +158,8 @@ type Variables = VariablesOf<typeof GetProductSearchResultsQuery>;
 type SearchProductsSortInput = Variables['sort'];
 type SearchProductsFiltersInput = Variables['filters'];
 
-interface ProductSearch {
-  limit?: number | null;
-  before?: string | null;
-  after?: string | null;
-  sort?: SearchProductsSortInput | null;
-  filters: SearchProductsFiltersInput;
-}
-
 const getProductSearchResults = cache(
   async ({ limit = 9, after, before, sort, filters }: any) => {
-
-    console.log('faceted');
-    console.log(filters);
-
-    return await facetedHawkSearch(limit = 9, after, before, sort, filters);
 
     const customerAccessToken = await getSessionCustomerAccessToken();
     const currencyCode = await getPreferredCurrencyCode();
@@ -195,9 +179,9 @@ const getProductSearchResults = cache(
 
    // const searchResults = { products: await hawkSearch(filters.searchTerm as string) };
 
-    console.log('Faceted Search Result-------------------------------');
-    console.log(removeEdgesAndNodes(searchResults.filters));
-    console.log('Faceted Search Result END-------------------------------');
+    // console.log('Faceted Search Result-------------------------------');
+    // console.log(removeEdgesAndNodes(searchResults.filters));
+    // console.log('Faceted Search Result END-------------------------------');
 
     const items = removeEdgesAndNodes(searchResults.products).map((product) => ({
       ...product,
@@ -275,8 +259,8 @@ const PublicSortParam = z.string().toUpperCase().pipe(PrivateSortParam);
 
 const SearchProductsFiltersInputSchema = z.object({
   brandEntityIds: z.array(z.number()).nullish(),
-  categoryEntityId: z.string().nullish(),
-  categoryEntityIds: z.array(z.string()).nullish(),
+  categoryEntityId: z.number().nullish(),
+  categoryEntityIds: z.array(z.number()).nullish(),
   hideOutOfStock: z.boolean().nullish(),
   isFeatured: z.boolean().nullish(),
   isFreeShipping: z.boolean().nullish(),
@@ -316,8 +300,8 @@ export const PublicSearchParamsSchema = z.object({
   after: z.string().nullish(),
   before: z.string().nullish(),
   brand: SearchParamToArray.nullish().transform((value) => value?.map(Number)),
-  category: z.coerce.string().optional(),
-  categoryIn: SearchParamToArray.nullish().transform((value) => value?.map(String)),
+  category: z.coerce.number().optional(),
+  categoryIn: SearchParamToArray.nullish().transform((value) => value?.map(Number)),
   isFeatured: z.coerce.boolean().nullish(),
   limit: z.coerce.number().nullish(),
   minPrice: z.coerce.number().nullish(),
@@ -408,6 +392,8 @@ export const fetchFacetedSearch = cache(
   // We need to make sure the reference passed into this function is the same if we want it to be memoized.
   async (params: z.input<typeof PublicSearchParamsSchema>) => {
     const { after, before, limit = 9, sort, filters } = PublicToPrivateParams.parse(params);
+
+    console.log('MY FILTERS', filters);
 
     return getProductSearchResults({
       after,
