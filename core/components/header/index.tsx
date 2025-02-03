@@ -18,7 +18,6 @@ import { search } from './_actions/search';
 import { switchCurrency } from './_actions/switch-currency';
 import { switchLocale } from './_actions/switch-locale';
 import { HeaderFragment } from './fragment';
-import { LogHelper } from '../log-helper';
 
 const GetCartCountQuery = graphql(`
   query GetCartCountQuery($cartId: String) {
@@ -141,8 +140,6 @@ export const Header = async () => {
   const activeCurrencyId = currencyCode ?? defaultCurrency?.id;
 
   return (
-    <>
-    <LogHelper products={'Hello'} />
     <HeaderSection
       navigation={{
         accountHref: '/login',
@@ -167,6 +164,5 @@ export const Header = async () => {
         currencyAction: switchCurrency,
       }}
     />
-    </>
   );
 };

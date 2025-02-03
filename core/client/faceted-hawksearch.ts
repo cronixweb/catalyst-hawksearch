@@ -35,7 +35,7 @@ interface Pagination{
     }
   }
 
-  export async function facetedHawkSearch(limit = 9, after:any, before:any, sort:any, filters: Filters) {
+  export async function facetedHawkSearch(after:any, before:any, sort:any, filters: Filters) {
   
     console.log('Hawksearch Filters ', filters);
 
@@ -63,13 +63,11 @@ interface Pagination{
           SortBy: sort,
           FacetSelections: {
             category: filters.categoryEntityIds,
-            ...(filters.price && {
                   price_retail: [
                     (filters.price.minPrice ? filters.price.minPrice : 0 )
                     + ',' 
                     + (filters.price.maxPrice ? filters.price.maxPrice : '')
                   ]
-              }),
           },
         }),
         headers: {
@@ -147,7 +145,7 @@ interface Pagination{
                                     //     "endCursor": "YXJyYXljb25uZWN0aW9uOjE="
                                     // },
                                     edges: 
-                                    (category.Children && category.Children.map((subCategory: any) => {
+                                    (category.Children?.map((subCategory: any) => {
                                       return {
                                         node: {
                                           "entityId": subCategory.Label,

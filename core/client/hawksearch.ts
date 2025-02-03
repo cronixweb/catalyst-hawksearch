@@ -61,7 +61,7 @@ export async function hawkSearch(query: string) : Promise<SearchResult[] | null>
     if (response.status === 200) {
        const json = await response.json();
        const products = json.Results;
-       const categoryFacet = json.Facets.find((facet: any) => facet.Name == 'Category');
+       const categoryFacet = json.Facets.find((facet: any) => facet.Name === 'Category');
        console.log(products);
 
        const categoryResponse = {
@@ -87,7 +87,7 @@ export async function hawkSearch(query: string) : Promise<SearchResult[] | null>
                 src: product.Document.image.length >=1 ? product.Document.image[0] : '',
                 alt: ""
             },
-            price: '$' + parseFloat((product.Document.price_retail.length >=1 ? product.Document.price_retail[0] : '')).toFixed(2)
+            price: `$${parseFloat((product.Document.price_retail.length >=1 ? product.Document.price_retail[0] : '')).toFixed(2)}`
           }
         }) as Array<{
                 id: string;

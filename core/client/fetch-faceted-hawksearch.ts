@@ -3,12 +3,12 @@ import { z } from 'zod';
 import { facetedHawkSearch } from '~/client/faceted-hawksearch';
 
 const getProductSearchResults = cache(
-  async ({ limit = 9, after, before, sort, filters }: any) => {
+  async ({after, before, sort, filters }: any) => {
     console.log('faceted');
     // console.log(filters);
     
     // filters.categoryEntityId = Number(filters.categoryEntityId);
-    return await facetedHawkSearch(limit = 9, after, before, sort, filters);
+    return await facetedHawkSearch( after, before, sort, filters);
   },
 );
 

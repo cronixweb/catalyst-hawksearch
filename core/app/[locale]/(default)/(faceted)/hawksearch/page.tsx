@@ -132,7 +132,7 @@ async function getTotalCount(props: Props): Promise<number> {
 
   const search = await getSearch(props);
 
-  return search?.products.collectionInfo?.totalItems ?? 0;
+  return search?.products.collectionInfo.totalItems ?? 0;
 }
 
 async function getSortLabel(): Promise<string> {
