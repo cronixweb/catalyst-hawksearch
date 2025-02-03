@@ -63,11 +63,13 @@ interface Pagination{
           SortBy: sort,
           FacetSelections: {
             category: filters.categoryEntityIds,
-                  price_retail: [
-                    (filters.price.minPrice ? filters.price.minPrice : 0 )
-                    + ',' 
-                    + (filters.price.maxPrice ? filters.price.maxPrice : '')
-                  ]
+            ...(filters.price && {
+              price_retail: [
+                (filters.price.minPrice ? filters.price.minPrice : 0 )
+                + ',' 
+                + (filters.price.maxPrice ? filters.price.maxPrice : '')
+              ]
+          }),
           },
         }),
         headers: {
