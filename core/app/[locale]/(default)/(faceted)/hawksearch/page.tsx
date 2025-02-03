@@ -79,6 +79,10 @@ async function getTitle(props: Props): Promise<string> {
   const searchTerm = await getSearchTerm(props);
   const t = await getTranslations('Search');
 
+  if(!searchTerm){
+    return 'Search results';
+  }
+
   return `${t('searchResults')} "${searchTerm}"`;
 }
 
@@ -124,12 +128,6 @@ async function getListProducts(props: Props): Promise<ListProduct[]> {
 }
 
 async function getTotalCount(props: Props): Promise<number> {
-  const searchTerm = await getSearchTerm(props);
-
-  if (searchTerm === '') {
-    return 0;
-  }
-
   const search = await getSearch(props);
 
   return search?.products.collectionInfo.totalItems ?? 0;
@@ -158,17 +156,6 @@ async function getSortOptions(): Promise<SortOption[]> {
 }
 
 async function getPaginationInfo(props: Props): Promise<CursorPaginationInfo> {
-  const searchTerm = await getSearchTerm(props);
-
-  if (searchTerm === '') {
-    return {
-      startCursorParamName: 'before',
-      endCursorParamName: 'after',
-      endCursor: null,
-      startCursor: null,
-    };
-  }
-
   const search = await getSearch(props);
   const { hasNextPage, hasPreviousPage, endCursor, startCursor } = search?.products.pageInfo ?? {};
 
@@ -176,7 +163,7 @@ async function getPaginationInfo(props: Props): Promise<CursorPaginationInfo> {
     startCursorParamName: 'before',
     endCursorParamName: 'after',
     endCursor: hasNextPage ? endCursor : null,
-    startCursor: hasPreviousPage ? String(startCursor) : '',
+    startCursor: hasPreviousPage ? String(startCursor) : null,
   };
 }
 

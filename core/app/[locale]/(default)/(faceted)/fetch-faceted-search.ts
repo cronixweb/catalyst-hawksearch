@@ -177,14 +177,6 @@ const getProductSearchResults = cache(
 
     const searchResults = site.search.searchProducts;
 
-    console.log({collectionInfo: searchResults.products.collectionInfo,
-      pageInfo: searchResults.products.pageInfo,});
-   // const searchResults = { products: await hawkSearch(filters.searchTerm as string) };
-
-    // console.log('Faceted Search Result-------------------------------');
-    // console.log(removeEdgesAndNodes(searchResults.filters));
-    // console.log('Faceted Search Result END-------------------------------');
-
     const items = removeEdgesAndNodes(searchResults.products).map((product) => ({
       ...product,
     }));
