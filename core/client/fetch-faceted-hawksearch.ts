@@ -4,10 +4,7 @@ import { facetedHawkSearch } from '~/client/faceted-hawksearch';
 
 const getProductSearchResults = cache(
   async ({after, before, sort, filters }: any) => {
-    console.log('faceted');
-    // console.log(filters);
     
-    // filters.categoryEntityId = Number(filters.categoryEntityId);
     return await facetedHawkSearch( after, before, sort, filters);
   },
 );
@@ -175,8 +172,6 @@ export const fetchFacetedHawksearch = cache(
   // We need to make sure the reference passed into this function is the same if we want it to be memoized.
   async (params: z.input<typeof PublicSearchParamsSchema>) => {
     const { after, before, limit = 9, sort, filters } = PublicToPrivateParams.parse(params);
-
-    console.log('MY FILTERS', filters);
 
     return getProductSearchResults({
       after,

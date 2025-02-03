@@ -393,8 +393,6 @@ export const fetchFacetedSearch = cache(
   async (params: z.input<typeof PublicSearchParamsSchema>) => {
     const { after, before, limit = 9, sort, filters } = PublicToPrivateParams.parse(params);
 
-    console.log('MY FILTERS', filters);
-
     return getProductSearchResults({
       after,
       before,
