@@ -30,6 +30,7 @@ const config = {
     '@typescript-eslint/restrict-plus-operands': 'off',
     '@typescript-eslint/no-unsafe-argument': 'off',
     'prefer-template': 'off',
+    '@typescript-eslint/no-unnecessary-condition': 'off',
     '@typescript-eslint/no-restricted-imports': [
       'error',
       {
