@@ -5,11 +5,7 @@ import { facetedHawkSearch } from '~/client/faceted-hawksearch';
 const getProductSearchResults = cache(
   async ({after, before, sort, filters }: any) => {
     
-    let result =  await facetedHawkSearch( after, before, sort, filters);
-
-    console.log(result);
-
-    return result;
+    return  await facetedHawkSearch( after, before, sort, filters);
   },
 );
 
