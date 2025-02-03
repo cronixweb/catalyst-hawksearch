@@ -37,8 +37,6 @@ interface Pagination{
 
   export async function facetedHawkSearch(after:any, before:any, sort:any, filters: Filters) {
   
-    console.log('Hawksearch Filters ', filters);
-
     if (!process.env.HAWKSEARCH_SERVER?.includes('hawksearch')) {
       throw new Error('Invalid Hawksearch Server');
     }

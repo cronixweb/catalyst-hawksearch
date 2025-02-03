@@ -177,12 +177,6 @@ const getProductSearchResults = cache(
 
     const searchResults = site.search.searchProducts;
 
-   // const searchResults = { products: await hawkSearch(filters.searchTerm as string) };
-
-    // console.log('Faceted Search Result-------------------------------');
-    // console.log(removeEdgesAndNodes(searchResults.filters));
-    // console.log('Faceted Search Result END-------------------------------');
-
     const items = removeEdgesAndNodes(searchResults.products).map((product) => ({
       ...product,
     }));
@@ -393,7 +387,6 @@ export const fetchFacetedSearch = cache(
   async (params: z.input<typeof PublicSearchParamsSchema>) => {
     const { after, before, limit = 9, sort, filters } = PublicToPrivateParams.parse(params);
 
-    console.log('MY FILTERS', filters);
 
     return getProductSearchResults({
       after,

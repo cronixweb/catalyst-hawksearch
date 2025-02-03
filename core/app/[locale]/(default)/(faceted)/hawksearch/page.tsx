@@ -10,7 +10,7 @@ import { ProductsListSection } from '@/vibes/soul/sections/products-list-section
 import { getFilterParsers } from '@/vibes/soul/sections/products-list-section/filter-parsers';
 import { Filter } from '@/vibes/soul/sections/products-list-section/filters-panel';
 import { Option as SortOption } from '@/vibes/soul/sections/products-list-section/sorting';
-import { facetsTransformer } from '~/data-transformers/facets-transformer';
+import { facetsTransformer } from '~/data-transformers/hawksearch-facets-transformer';
 import { pricesTransformer } from '~/data-transformers/prices-transformer';
 
 import { fetchFacetedHawksearch } from '~/client/fetch-faceted-hawksearch';
@@ -25,7 +25,7 @@ const createSearchSearchParamsCache = cache(async (props: Props) => {
     allFacets: searchFacets,
     searchParams: {},
   });
-  const searchFilters = transformedSearchFacets.filter((facet) => facet != null);
+  const searchFilters = transformedSearchFacets.filter((facet:any) => facet != null);
   const filterParsers = getFilterParsers(searchFilters);
 
   // If there are no filters, return `null`, since calling `createSearchParamsCache` with an empty
@@ -79,6 +79,10 @@ async function getTitle(props: Props): Promise<string> {
   const searchTerm = await getSearchTerm(props);
   const t = await getTranslations('Search');
 
+  if(!searchTerm){
+    return 'Search results';
+  }
+
   return `${t('searchResults')} "${searchTerm}"`;
 }
 
@@ -104,7 +108,7 @@ async function getFilters(props: Props): Promise<Filter[]> {
     searchParams: { ...searchParams, ...parsedSearchParams },
   });
 
-  return transformedFacets.filter((facet) => facet != null);
+  return transformedFacets.filter((facet:any) => facet != null);
 }
 
 async function getListProducts(props: Props): Promise<ListProduct[]> {
@@ -124,12 +128,6 @@ async function getListProducts(props: Props): Promise<ListProduct[]> {
 }
 
 async function getTotalCount(props: Props): Promise<number> {
-  const searchTerm = await getSearchTerm(props);
-
-  if (searchTerm === '') {
-    return 0;
-  }
-
   const search = await getSearch(props);
 
   return search?.products.collectionInfo.totalItems ?? 0;
@@ -158,17 +156,6 @@ async function getSortOptions(): Promise<SortOption[]> {
 }
 
 async function getPaginationInfo(props: Props): Promise<CursorPaginationInfo> {
-  const searchTerm = await getSearchTerm(props);
-
-  if (searchTerm === '') {
-    return {
-      startCursorParamName: 'before',
-      endCursorParamName: 'after',
-      endCursor: null,
-      startCursor: null,
-    };
-  }
-
   const search = await getSearch(props);
   const { hasNextPage, hasPreviousPage, endCursor, startCursor } = search?.products.pageInfo ?? {};
 
@@ -176,7 +163,7 @@ async function getPaginationInfo(props: Props): Promise<CursorPaginationInfo> {
     startCursorParamName: 'before',
     endCursorParamName: 'after',
     endCursor: hasNextPage ? endCursor : null,
-    startCursor: hasPreviousPage ? String(startCursor) : '',
+    startCursor: hasPreviousPage ? String(startCursor) : null,
   };
 }
 

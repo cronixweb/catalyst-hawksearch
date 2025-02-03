@@ -27,8 +27,6 @@ interface HawksearchSearchResponse{
 
 export async function hawkSearch(query: string) : Promise<SearchResult[] | null> {
 
-  console.log(process.env.HAWKSEARCH_SERVER)
-  console.log(query);
   if (!process.env.HAWKSEARCH_SERVER?.includes('hawksearch')) {
     throw new Error('Invalid Hawksearch Server');
   }
@@ -40,8 +38,6 @@ export async function hawkSearch(query: string) : Promise<SearchResult[] | null>
   if (process.env.HAWKSEARCH_INDEX === '') {
     throw new Error('HAWKSEARCH_INDEX is empty');
   }
-
-  console.log(process.env.HAWKSEARCH_CLIENT_GUID, ' ' ,process.env.HAWKSEARCH_INDEX);
 
   try {
     const response = await fetch(`${process.env.HAWKSEARCH_SERVER}/api/v2/search`, {
@@ -62,7 +58,6 @@ export async function hawkSearch(query: string) : Promise<SearchResult[] | null>
        const json = await response.json();
        const products = json.Results;
        const categoryFacet = json.Facets.find((facet: any) => facet.Name === 'Category');
-       console.log(products);
 
        const categoryResponse = {
           type: 'links' as 'links',
