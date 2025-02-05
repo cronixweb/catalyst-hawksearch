@@ -158,8 +158,16 @@ type Variables = VariablesOf<typeof GetProductSearchResultsQuery>;
 type SearchProductsSortInput = Variables['sort'];
 type SearchProductsFiltersInput = Variables['filters'];
 
+interface ProductSearch {
+  limit?: number | null;
+  before?: string | null;
+  after?: string | null;
+  sort?: SearchProductsSortInput | null;
+  filters: SearchProductsFiltersInput;
+}
+
 const getProductSearchResults = cache(
-  async ({ limit = 9, after, before, sort, filters }: any) => {
+  async ({ limit = 9, after, before, sort, filters }: ProductSearch) => {
 
     const customerAccessToken = await getSessionCustomerAccessToken();
     const currencyCode = await getPreferredCurrencyCode();

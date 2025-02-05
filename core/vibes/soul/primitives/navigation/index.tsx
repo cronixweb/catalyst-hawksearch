@@ -28,7 +28,6 @@ import { Price } from '@/vibes/soul/primitives/price-label';
 import { ProductCard } from '@/vibes/soul/primitives/product-card';
 import { Link } from '~/components/link';
 import { usePathname } from '~/i18n/routing';
-import { LogHelper } from '~/components/log-helper';
 
 interface Link {
   label: string;
@@ -647,7 +646,6 @@ function SearchForm<S extends SearchResult>({
 
   return (
     <>
-    <LogHelper products={searchResults} />
       <form
         action={searchHref}
         className="flex items-center gap-3 px-3 py-3 @4xl:px-5 @4xl:py-4"

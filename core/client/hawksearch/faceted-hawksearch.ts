@@ -1,5 +1,3 @@
-import Category from "~/app/[locale]/(default)/(faceted)/category/[slug]/page";
-
 interface Pagination{
     NofResults: number;
     CurrentPage: number;
@@ -10,32 +8,155 @@ interface Pagination{
   interface HawkSearchDocument {
     image: string[];
     unique_id: string[];
-    price_retail: string[];
-    
+    price_retail: number[];
+    name: string[];
+    url_detail: string[];
+    metric_inventory: number[];
   }
   
   interface Result {
     DocId: string;
     Score: number;
     Document: HawkSearchDocument;
+    IsVisible: boolean;
   }
   
   interface HawksearchSearchResponse{
     Pagination: Pagination;
     Results: Result[];
+    Facets: HawksearchFacet[];
   }
   
-
-  interface Filters{
-    categoryEntityIds: string[];
-    searchTerm: string;
-    price: {
-      minPrice: string,
-      maxPrice: string
-    }
+  interface HawksearchFacet{
+    Name: string;
+    Values: HawksearchFacetValues[];
   }
 
-  export async function facetedHawkSearch(after:any, before:any, sort:any, filters: Filters) {
+  interface HawksearchFacetValues{
+    Value: string;
+    Selected: boolean;
+    Label: string;
+    Count: number;
+    Children: HawksearchFacetValues[];
+    RangeStart: number;
+    RangeEnd: number;
+  }
+
+  export interface HawksearchFilters{
+    categoryEntityIds?: string[] | null | undefined;
+    searchTerm?: string | null | undefined;
+    price?: {
+      minPrice?: number | null | undefined;
+      maxPrice?: number | null | undefined;
+    } | null | undefined
+  }
+
+    interface facetedHawksearchResults {
+      facets: {
+          items: Array<({
+              __typename: "PriceSearchFilter";
+              name: string;
+              isCollapsedByDefault: boolean;
+              selected: {
+                  minPrice: number | null;
+                  maxPrice: number | null;
+              } | null;
+          } | {
+              categories: Array<{
+                  entityId: string;
+                  name: string;
+                  isSelected: boolean;
+                  productCount: number;
+                  subCategories: {
+                      edges: Array<{
+                        node: {
+                          entityId: string,
+                          name: string,
+                          isSelected: boolean,
+                          productCount: number
+                        }
+                      }> | null;
+                  };
+              }>;
+              __typename: "CategorySearchFilter";
+              name: string;
+              isCollapsedByDefault: boolean;
+              displayProductCount: boolean;
+          })>;
+      };
+      products: {
+          collectionInfo: {
+              totalItems: number | null;
+          } | null;pageInfo: {
+              hasNextPage: boolean;hasPreviousPage: boolean;startCursor: string | null;endCursor: string | null;
+          };
+          items: Array<{
+              entityId: string;
+              name: string;
+              defaultImage: {
+                  altText: string;url: string;
+              } | null;
+              path: string;
+              brand: {
+                  name: string;path: string;
+              } | null;
+              reviewSummary: {
+                  numberOfReviews: number;averageRating: number;
+              };
+              productOptions: {
+                  edges: Array<{
+                      node: {
+                          __typename ? : "CheckboxOption" | undefined;entityId: string;
+                      } | {
+                          __typename ? : "DateFieldOption" | undefined;entityId: string;
+                      } | {
+                          __typename ? : "FileUploadFieldOption" | undefined;entityId: string;
+                      } | {
+                          __typename ? : "MultiLineTextFieldOption" | undefined;entityId: string;
+                      } | {
+                          __typename ? : "MultipleChoiceOption" | undefined;entityId: string;
+                      } | {
+                          __typename ? : "NumberFieldOption" | undefined;entityId: string;
+                      } | {
+                          __typename ? : "TextFieldOption" | undefined;entityId: string;
+                      };
+                  }> | null;
+              };
+              inventory: {
+                  isInStock: boolean;
+              };
+              availabilityV2: {
+                  __typename ? : "ProductAvailable" | undefined;status: string;
+              } | {
+                  __typename ? : "ProductPreOrder" | undefined;status: string;
+              } | {
+                  __typename ? : "ProductUnavailable" | undefined;status: string;
+              };
+              prices: {
+                  price: {
+                      value: number;currencyCode: string;
+                  };basePrice: {
+                      value: number;currencyCode: string;
+                  } | null;retailPrice: {
+                      value: number;currencyCode: string;
+                  } | null;salePrice: {
+                      value: number;currencyCode: string;
+                  } | null;priceRange: {
+                      min: {
+                          value: number;currencyCode: string;
+                      };max: {
+                          value: number;currencyCode: string;
+                      };
+                  };
+              } | null;
+          }>;
+      };
+  }
+
+  export async function facetedHawkSearch(after:string | null | undefined, before:string | null | undefined, sort:string | null | undefined, filters: HawksearchFilters): 
+  Promise<facetedHawksearchResults>
+  
+  {
   
     if (!process.env.HAWKSEARCH_SERVER?.includes('hawksearch')) {
       throw new Error('Invalid Hawksearch Server');
@@ -48,9 +169,6 @@ interface Pagination{
     if (process.env.HAWKSEARCH_INDEX === '') {
       throw new Error('HAWKSEARCH_INDEX is empty');
     }
-
-
-    try {
       const response = await fetch(`${process.env.HAWKSEARCH_SERVER}/api/v2/search`, {
         method: 'POST',
         body: JSON.stringify({
@@ -63,9 +181,7 @@ interface Pagination{
             category: filters.categoryEntityIds,
             ...(filters.price && {
               price_retail: [
-                (filters.price.minPrice ? filters.price.minPrice : 0 )
-                + ',' 
-                + (filters.price.maxPrice ? filters.price.maxPrice : '')
+                `${(filters.price.minPrice ? filters.price.minPrice : 0 )},${(filters.price.maxPrice ? filters.price.maxPrice : '')}`
               ]
           }),
           },
@@ -78,34 +194,32 @@ interface Pagination{
       //console.log(response);
       console.log('STATUS******************* ', response.status);
       
-      if (response.status === 200) {
-         const hawkSearchResponse = await response.json();
-         //console.log(hawkSearchResponse);
+         const hawkSearchResponse:HawksearchSearchResponse = await response.json();
 
          const products = hawkSearchResponse.Results;
   
-         const items = products.map((product:any, index:any) => {
+         const items = products.map((product) => {
             return {
                 entityId: product.DocId,
-                name: product.Document.name.length >=1 ? product.Document.name[0] : '',
+                name: product.Document.name[0] ?? '',
                 defaultImage: {
                     altText: '',
-                    url: product.Document.image.length >=1 ? product.Document.image[0] : '',
+                    url: product.Document.image[0] ?? '',
                 },
-                path: product.Document.url_detail.length >=1 ? product.Document.url_detail[0] : '',
+                path: product.Document.url_detail[0] ?? '',
                 brand: null,
                 reviewSummary: { numberOfReviews: 0, averageRating: 0 },
                 productOptions: { edges: [ { node: { entityId: product.DocId } } ] },
-                inventory: { isInStock: product.Document.metric_inventory.length >=1 && product.Document.metric_inventory[0] > 0 },
+                inventory: { isInStock: (product.Document.metric_inventory[0] ?  product.Document.metric_inventory[0] > 0 : false)},
                 availabilityV2: { status: product.IsVisible ? 'Available' : 'Unavailable'},
                 prices: {
-                    price: { value: product.Document.price_retail.length >=1 ? product.Document.price_retail[0] : '', currencyCode: 'USD' },
-                    basePrice: { value: product.Document.price_retail.length >=1 ? product.Document.price_retail[0] : '', currencyCode: 'USD' },
+                    price: { value: product.Document.price_retail[0] ?? 0, currencyCode: 'USD' },
+                    basePrice: { value: product.Document.price_retail[0] ?? 0, currencyCode: 'USD' },
                     retailPrice: null,
                     salePrice: null,
                     priceRange: {
-                        min: { value: product.Document.price_retail.length >=1 ? product.Document.price_retail[0] : '', currencyCode: 'USD' },
-                        max: { value: product.Document.price_retail.length >=1 ? product.Document.price_retail[0] : '', currencyCode: 'USD' }
+                        min: { value: product.Document.price_retail[0] ?? 0, currencyCode: 'USD' },
+                        max: { value: product.Document.price_retail[0] ?? 0, currencyCode: 'USD' }
                     }
                 }
             }
@@ -113,16 +227,11 @@ interface Pagination{
 
          const facets = hawkSearchResponse.Facets;
          const pagination = hawkSearchResponse.Pagination;
+
          return {
             facets: {
-              items: facets.map((facet: any) => {
+              items: facets.map((facet) => {
                 switch (facet.Name) {
-                  case 'BrandSearchFilter':
-                    return {
-                      //...node,
-                      //brands: removeEdgesAndNodes(node.brands),
-                    };
-      
                   case 'Category':
                     return {
                         displayProductCount: true,
@@ -131,72 +240,50 @@ interface Pagination{
                         __typename: "CategorySearchFilter",
                         categories: 
                         
-                        facet.Values.map((category: any) => {
+                          facet.Values.map((category) => {
                             return {
                                 entityId: category.Value,
                                 isSelected: category.Selected,
                                 name: category.Label,
                                 productCount: category.Count,
-                                SubCategories: {
-                                    // pageInfo: {
-                                    //     "hasNextPage": false,
-                                    //     "hasPreviousPage": false,
-                                    //     "startCursor": "YXJyYXljb25uZWN0aW9uOjA=",
-                                    //     "endCursor": "YXJyYXljb25uZWN0aW9uOjE="
-                                    // },
-                                    edges: 
-                                    (category.Children?.map((subCategory: any) => {
-                                      return {
-                                        node: {
-                                          "entityId": subCategory.Label,
-                                          "name": subCategory.Label,
-                                          "isSelected": subCategory.Selected,
-                                          "productCount": subCategory.Count
-                                        }
+                                subCategories: {
+                                  edges: 
+                                  (category.Children.map((subCategory) => {
+                                    return {
+                                      node: {
+                                        entityId: subCategory.Label,
+                                        name: subCategory.Label,
+                                        isSelected: subCategory.Selected,
+                                        productCount: subCategory.Count
                                       }
-                                    })
+                                    }
+                                  })
                                   )
                                 }
                             }
                         })
                     };
-      
-                  case 'ProductAttributeSearchFilter':
-                    return {
-                      //...node,
-                      //attributes: removeEdgesAndNodes(node.attributes),
-                    };
-      
-                  case 'RatingSearchFilter':
-                    return {
-                      //...node,
-                      //ratings: removeEdgesAndNodes(node.ratings),
-                    };
-    
                   case 'Price':
                     return {
-                        "__typename": "PriceSearchFilter",
-                        "name": "Price",
-                        "isCollapsedByDefault": false,
-                        "selected":{ 
-                          "minPrice": facet.Values[0].RangeStart ? facet.Values[0].RangeStart : null,
-                          "maxPrice": facet.Values[0].RangeEnd ? facet.Values[0].RangeEnd: null
+                        __typename: "PriceSearchFilter",
+                        name: "Price",
+                        isCollapsedByDefault: false,
+                        selected:{ 
+                          minPrice: facet.Values[0]?.RangeStart ? facet.Values[0].RangeStart : null,
+                          maxPrice: facet.Values[0]?.RangeEnd ? facet.Values[0].RangeEnd: null
                         }
                       }
-
-                  default:
+                  
+                  default :
                     return {
-                      // "__typename": "OtherSearchFilter",
-                      // "name": "Other",
-                      // "isCollapsedByDefault": true,
-                      // "displayProductCount": true,
-                      // "freeShipping": null,
-                      // "isFeatured": null,
-                      // "isInStock": {
-                      //     "isSelected": facet.isInStock.isSelected,
-                      //     "productCount": facet.
-                      // }
-                  };
+                      __typename: "PriceSearchFilter",
+                      name: "Price",
+                      isCollapsedByDefault: false,
+                      selected:{ 
+                        minPrice: null,
+                        maxPrice: null
+                      }
+                    }
                 }
               }),
             },
@@ -205,18 +292,13 @@ interface Pagination{
                 totalItems: pagination.NofResults,
               },
               pageInfo: {
-                endCursor: pagination.CurrentPage + 1,
+                endCursor: String(pagination.CurrentPage + 1),
                 hasNextPage: pagination.CurrentPage < pagination.NofPages,
                 hasPreviousPage: pagination.CurrentPage > 1,
-                startCursor: pagination.CurrentPage - 1.
+                startCursor: String(pagination.CurrentPage - 1)
               },
               items,
             },
           };
-  
-      }
-    } catch (error) {
-      console.error(error);
-    }
   }
   
