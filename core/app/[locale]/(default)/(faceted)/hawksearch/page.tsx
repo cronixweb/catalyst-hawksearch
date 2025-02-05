@@ -13,7 +13,7 @@ import { Option as SortOption } from '@/vibes/soul/sections/products-list-sectio
 import { facetsTransformer } from '~/data-transformers/hawksearch-facets-transformer';
 import { pricesTransformer } from '~/data-transformers/prices-transformer';
 
-import { fetchFacetedHawksearch } from '~/client/fetch-faceted-hawksearch';
+import { fetchFacetedHawksearch } from '~/client/hawksearch/fetch-faceted-hawksearch';
 
 
 const createSearchSearchParamsCache = cache(async (props: Props) => {
@@ -25,7 +25,7 @@ const createSearchSearchParamsCache = cache(async (props: Props) => {
     allFacets: searchFacets,
     searchParams: {},
   });
-  const searchFilters = transformedSearchFacets.filter((facet:any) => facet != null);
+  const searchFilters = transformedSearchFacets.filter((facet) => facet != null);
   const filterParsers = getFilterParsers(searchFilters);
 
   // If there are no filters, return `null`, since calling `createSearchParamsCache` with an empty
@@ -67,12 +67,10 @@ const getSearch = cache(async (props: Props) => {
 });
 
 async function getProducts(props: Props) {
-  const searchTerm = await getSearchTerm(props);
-
   //Get for all products when no search term is passed
   const search = await getSearch(props);
 
-  return search?.products.items;
+  return search.products.items;
 }
 
 async function getTitle(props: Props): Promise<string> {
@@ -88,7 +86,6 @@ async function getTitle(props: Props): Promise<string> {
 
 async function getFilters(props: Props): Promise<Filter[]> {
   const searchParams = await props.searchParams;
-  const searchTerm = await getSearchTerm(props);
   const searchParamsCache = await createSearchSearchParamsCache(props);
   const parsedSearchParams = searchParamsCache?.parse(searchParams) ?? {};
 
@@ -108,14 +105,14 @@ async function getFilters(props: Props): Promise<Filter[]> {
     searchParams: { ...searchParams, ...parsedSearchParams },
   });
 
-  return transformedFacets.filter((facet:any) => facet != null);
+  return transformedFacets.filter((facet) => facet != null);
 }
 
 async function getListProducts(props: Props): Promise<ListProduct[]> {
   const products = await getProducts(props);
   const format = await getFormatter();
 
-  return products.map((product: any) => ({
+  return products.map((product) => ({
     id: product.entityId.toString(),
     title: product.name,
     href: product.path,
@@ -130,7 +127,7 @@ async function getListProducts(props: Props): Promise<ListProduct[]> {
 async function getTotalCount(props: Props): Promise<number> {
   const search = await getSearch(props);
 
-  return search?.products.collectionInfo.totalItems ?? 0;
+  return search.products.collectionInfo?.totalItems ?? 0;
 }
 
 async function getSortLabel(): Promise<string> {
