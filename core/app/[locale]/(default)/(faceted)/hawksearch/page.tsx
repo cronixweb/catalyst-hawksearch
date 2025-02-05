@@ -13,7 +13,7 @@ import { Option as SortOption } from '@/vibes/soul/sections/products-list-sectio
 import { facetsTransformer } from '~/data-transformers/hawksearch-facets-transformer';
 import { pricesTransformer } from '~/data-transformers/prices-transformer';
 
-import { fetchFacetedHawksearch } from '~/client/fetch-faceted-hawksearch';
+import { fetchFacetedHawksearch } from '~/client/hawksearch/fetch-faceted-hawksearch';
 
 
 const createSearchSearchParamsCache = cache(async (props: Props) => {

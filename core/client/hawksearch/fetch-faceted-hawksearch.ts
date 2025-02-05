@@ -1,6 +1,6 @@
 import { cache } from 'react';
 import { z } from 'zod';
-import { facetedHawkSearch } from '~/client/faceted-hawksearch';
+import { facetedHawkSearch } from '~/client/hawksearch/faceted-hawksearch';
 
 const getProductSearchResults = cache(
   async ({after, before, sort, filters }: any) => {

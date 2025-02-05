@@ -6,7 +6,7 @@ import { getTranslations } from 'next-intl/server';
 import { z } from 'zod';
 
 import { SearchResult } from '@/vibes/soul/primitives/navigation';
-import { hawkSearch } from '~/client/hawksearch';
+import { hawkSearch } from '~/client/hawksearch/hawksearch';
 
 export async function search(
   prevState: {

@@ -6,7 +6,7 @@ import {
   fetchFacetedHawksearch,
   PublicSearchParamsSchema,
   PublicToPrivateParams,
-} from 'client/fetch-faceted-hawksearch';
+} from '~/client/hawksearch/fetch-faceted-hawksearch';
 import { ExistingResultType } from '~/client/util';
 
 export const facetsTransformer = async ({
